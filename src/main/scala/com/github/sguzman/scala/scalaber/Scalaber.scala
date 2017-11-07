@@ -1,7 +1,7 @@
 package com.github.sguzman.scala.scalaber
 
-import com.mashape.unirest.http.{HttpResponse, JsonNode, Unirest}
-import com.mashape.unirest.request.HttpRequest
+import com.mashape.unirest.http.Unirest
+import org.json.JSONObject
 import org.pmw.tinylog.Logger
 
 object Scalaber {
@@ -18,14 +18,23 @@ object Scalaber {
       System.exit(1)
     }
 
+    val cookie = args.head
     Logger.debug("About to check cookie...")
-    if (this.checkCookie(args.head)) {
+
+    if (this.checkCookie(cookie)) {
       Logger.debug("All is good - Moving to next step")
     } else {
       Logger.error("Cookie did not work - Failing gracefully")
       System.exit(2)
     }
 
+    Logger.debug("Retrieving statement list...")
+    val list = this.getStatementList(cookie)
+    if (list.isEmpty) {
+      Logger.error("Something went wrong - Failing gracefully")
+    } else {
+      Logger.info("Successfully retrieved summarized statement list")
+    }
   }
 
   def checkArgsMessage: String = {
@@ -59,8 +68,19 @@ object Scalaber {
 
       status
     } catch {
-      case ex: Throwable =>
+      case _: Throwable =>
         false
     }
+  }
+
+  def getStatementList(cookie: String): IndexedSeq[JSONObject] = {
+    val getStatementListURL = "https://partners.uber.com/p3/money/statements/all_data"
+
+    val resp = Unirest.get(getStatementListURL)
+      .header("Cookie", cookie)
+      .asJson
+
+    val array = resp.getBody.getArray
+    (0 until array.length).map(array.getJSONObject)
   }
 }
