@@ -92,4 +92,16 @@ object Scalaber {
     val array = resp.getBody.getArray
     (0 until array.length).map(array.getJSONObject).map(_.getString("uuid"))
   }
+
+  def getStatement(cookie: String, uuid: String): IndexedSeq[AnyRef] = {
+    val getStatementURL = s"https://partners.uber.com/p3/money/statements/view/$uuid"
+
+    val resp = Unirest.get(getStatementURL)
+      .header("Cookie", cookie)
+      .asJson
+
+    val array = resp.getBody.getObject.getJSONObject("driver").getJSONObject("trip_earnings").getJSONArray("trips")
+
+    (0 until array.length).map(array.get)
+  }
 }
