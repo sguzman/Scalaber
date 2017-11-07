@@ -22,7 +22,9 @@ resolvers ++= Seq(
 /** Source Dependencies */
 libraryDependencies ++= Seq(
   "org.scalatest" % "scalatest_2.12" % "3.2.0-SNAP9",
-  "com.github.sikorka" % "tiny-log" % "1.0"
+  "org.tinylog" % "tinylog" % "1.3-rc-2",
+  "com.mashape.unirest" % "unirest-java" % "1.4.9",
+  "com.lihaoyi" % "upickle_2.12" % "0.4.4"
 )
 
 /** Make sure to fork on run */
