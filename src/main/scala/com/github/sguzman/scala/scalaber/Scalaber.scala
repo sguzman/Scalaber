@@ -1,7 +1,6 @@
 package com.github.sguzman.scala.scalaber
 
 import com.mashape.unirest.http.Unirest
-import org.json.JSONObject
 import org.pmw.tinylog.Logger
 
 object Scalaber {
@@ -32,8 +31,18 @@ object Scalaber {
     val list = this.getStatementList(cookie)
     if (list.isEmpty) {
       Logger.error("Something went wrong - Failing gracefully")
+      System.exit(3)
     } else {
       Logger.info("Successfully retrieved summarized statement list")
+    }
+
+    Logger.debug("Retrieving statement objects")
+    val statement = list.map(this.getStatement(cookie, _))
+    if (statement.isEmpty) {
+      Logger.error("Failed to retrieve list - Quitting...")
+      System.exit(4)
+    } else {
+      Logger.info("Statement list returned")
     }
   }
 
