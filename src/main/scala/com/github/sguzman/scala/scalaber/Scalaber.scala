@@ -4,12 +4,28 @@ import com.mashape.unirest.http.{HttpResponse, JsonNode, Unirest}
 import com.mashape.unirest.request.HttpRequest
 import org.pmw.tinylog.Logger
 
-object Main {
+object Scalaber {
   val app = "Scalaber"
 
   def main(args: Array[String]): Unit = {
     Logger.info("Starting {} application - Hello world!", this.app)
-    println(this.checkCookie(args.head))
+    Logger.debug("Checking args...")
+    Logger.info(s"Args is ${args.mkString("[", ", ", "]")}")
+    if (this.checkArgs(args)) {
+      Logger.debug("Args is good")
+    } else {
+      Logger.error("Args is bad - Quitting...")
+      System.exit(1)
+    }
+
+    Logger.debug("About to check cookie...")
+    if (this.checkCookie(args.head)) {
+      Logger.debug("All is good - Moving to next step")
+    } else {
+      Logger.error("Cookie did not work - Failing gracefully")
+      System.exit(2)
+    }
+
   }
 
   def checkArgsMessage: String = {
@@ -39,9 +55,12 @@ object Main {
           .getJSONArray("urls")
           .length
 
-      resp.getStatus == 200 && resp.getStatusText == "OK" && betterBe2 == 2
+      val status = resp.getStatus == 200 && resp.getStatusText == "OK" && betterBe2 == 2
+
+      status
     } catch {
-      case _: Throwable => false
+      case ex: Throwable =>
+        false
     }
   }
 }
