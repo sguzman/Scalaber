@@ -12,6 +12,10 @@ object Main {
     println(this.checkCookie(args.head))
   }
 
+  def checkArgs(args: Array[String]): Boolean = {
+    args.length == 1
+  }
+
   def checkCookie(str: String): Boolean = {
     try {
       val checkCookieURL = "https://partners.uber.com/p3/platform_chrome_nav_data"
