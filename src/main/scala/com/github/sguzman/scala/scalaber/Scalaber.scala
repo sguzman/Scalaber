@@ -37,7 +37,7 @@ object Scalaber {
     }
 
     Logger.debug("Retrieving statement objects")
-    val statement = list.map(this.getStatement(cookie, _))
+    val statement = list.map(this.getTrips(cookie, _))
     if (statement.isEmpty) {
       Logger.error("Failed to retrieve list - Quitting...")
       System.exit(4)
@@ -93,7 +93,7 @@ object Scalaber {
     (0 until array.length).map(array.getJSONObject).map(_.getString("uuid"))
   }
 
-  def getStatement(cookie: String, uuid: String): IndexedSeq[AnyRef] = {
+  def getTrips(cookie: String, uuid: String): IndexedSeq[AnyRef] = {
     val getStatementURL = s"https://partners.uber.com/p3/money/statements/view/$uuid"
 
     val resp = Unirest.get(getStatementURL)
