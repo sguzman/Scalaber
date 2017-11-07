@@ -12,6 +12,10 @@ object Main {
     println(this.checkCookie(args.head))
   }
 
+  def checkArgsMessage: String = {
+    "usage: <cookie>\n"
+  }
+
   def checkArgs(args: Array[String]): Boolean = {
     args.length == 1
   }
