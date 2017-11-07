@@ -21,6 +21,8 @@ resolvers ++= Seq(
 
 /** Source Dependencies */
 libraryDependencies ++= Seq(
+  "org.scalatest" % "scalatest_2.12" % "3.2.0-SNAP9",
+  "com.github.sikorka" % "tiny-log" % "1.0"
 )
 
 /** Make sure to fork on run */
