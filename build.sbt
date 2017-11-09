@@ -1,6 +1,9 @@
 /** Name of project */
 name := "Scalaber"
 
+/** Organization (groupid) */
+organization := "com.github.sguzman"
+
 /** Project Version */
 version := "1.0"
 
