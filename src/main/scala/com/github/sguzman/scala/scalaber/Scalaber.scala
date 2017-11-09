@@ -2,28 +2,39 @@ package com.github.sguzman.scala.scalaber
 
 import java.util.UUID
 
+import com.beust.jcommander.JCommander
+import com.github.sguzman.scala.scalaber.cmd.Args
 import com.github.sguzman.scala.scalaber.jsontypecheck.StatementListObject
 import com.github.sguzman.scala.scalaber.jsontypecheck.statement.Statement
 import com.github.sguzman.scala.scalaber.jsontypecheck.trip.Trip
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.{HttpResponse, JsonNode, Unirest}
-import org.pmw.tinylog.Logger
+import org.pmw.tinylog.{Configurator, Level, Logger}
 
 object Scalaber {
   val app = "Scalaber"
 
   def main(args: Array[String]): Unit = {
+    val argv = this.checkArgs(args)
+    if (argv.isEmpty) {
+      Logger.error("Args is bad - Quitting...")
+      System.exit(1)
+    } else {
+      val level = this.getLogLevel(argv.get.verbosity)
+      Configurator
+        .currentConfig()
+        .level(level)
+        .activate()
+      Logger.debug("Args is good")
+    }
+
     Logger.info("Starting {} application - Hello world!", this.app)
     Logger.debug("Checking args...")
     Logger.info(s"Args is ${args.mkString("[", ", ", "]")}")
-    if (this.checkArgs(args)) {
-      Logger.debug("Args is good")
-    } else {
-      Logger.error("Args is bad - Quitting...")
-      System.exit(1)
-    }
 
-    val cookie = args.head
+    val validArgs = argv.get
+
+    val cookie = validArgs.cookie
     Logger.info("About to check cookie...")
 
     if (this.checkCookie(cookie)) {
@@ -84,8 +95,28 @@ object Scalaber {
     "usage: <cookie>\n"
   }
 
-  def checkArgs(args: Array[String]): Boolean = {
-    args.length == 1
+  def checkArgs(args: Array[String]): Option[Args] = {
+    try {
+      if (args.length == 1 || args.length == 3) {
+        val main = new Args()
+        JCommander.newBuilder().addObject(main).build().parse(args: _*)
+        Some(main)
+      } else {
+        None
+      }
+    } catch {
+      case _: Throwable => None
+    }
+  }
+
+  def getLogLevel(level: String): Level = level match {
+    case "0" => Level.OFF
+    case "1" => Level.TRACE
+    case "2" => Level.DEBUG
+    case "3" => Level.INFO
+    case "4" => Level.WARNING
+    case "5" => Level.ERROR
+    case _ => Level.DEBUG
   }
 
   def checkCookie(cookie: String): Boolean = {

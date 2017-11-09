@@ -27,7 +27,8 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.0-SNAP9",
   "org.tinylog" % "tinylog" % "1.3-rc-2",
   "com.mashape.unirest" % "unirest-java" % "1.4.9",
-  "com.google.code.gson" % "gson" % "2.8.2"
+  "com.google.code.gson" % "gson" % "2.8.2",
+  "com.beust" % "jcommander" % "1.72"
 )
 
 /** Make sure to fork on run */
