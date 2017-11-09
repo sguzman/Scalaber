@@ -14,5 +14,4 @@ sealed case class StatementListObject(
                    currency_code: String,
                    ending_at: Long,
                    num_txns: Int
-) {
-}
+)

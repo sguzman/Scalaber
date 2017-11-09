@@ -1,6 +1,9 @@
 package com.github.sguzman.scala.scalaber
 
+import java.util.UUID
+
 import com.github.sguzman.scala.scalaber.jsontypecheck.StatementListObject
+import com.github.sguzman.scala.scalaber.jsontypecheck.statement.Statement
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.{HttpResponse, JsonNode, Unirest}
 import org.pmw.tinylog.Logger
@@ -36,15 +39,19 @@ object Scalaber {
       System.exit(3)
     } else {
       Logger.info("Successfully retrieved summarized statement list")
+      Logger.debug(list.mkString("[", ", ", "]"))
     }
 
+    val getStmt = this.getStatementObject(cookie, _: UUID)
+
     Logger.debug("Retrieving statement objects")
-    val statement = list.map(this.getTrips(cookie, _))
-    if (statement.isEmpty) {
+    val statements = list.map(_.uuid).par.map(getStmt)
+    if (statements.isEmpty) {
       Logger.error("Failed to retrieve list - Quitting...")
       System.exit(4)
     } else {
       Logger.info("Statement list returned")
+      Logger.debug(statements.mkString("[", ", ", "]"))
     }
   }
 
@@ -95,15 +102,11 @@ object Scalaber {
     (0 until array.length).map(array.getJSONObject).map(_.toString).map(gson.fromJson(_, classOf[StatementListObject]))
   }
 
-  def getTrips(cookie: String, uuid: String): IndexedSeq[AnyRef] = {
-    val getStatementURL = s"https://partners.uber.com/p3/money/statements/view/$uuid"
+  def getStatementObject(cookie: String, uuid: UUID): Statement = {
+    val getStatementURL = s"https://partners.uber.com/p3/money/statements/view/${uuid.toString}"
+    val resp = this.get(getStatementURL, cookie).getBody.getObject
 
-    val resp = Unirest.get(getStatementURL)
-      .header("Cookie", cookie)
-      .asJson
-
-    val array = resp.getBody.getObject.getJSONObject("driver").getJSONObject("trip_earnings").getJSONArray("trips")
-
-    (0 until array.length).map(array.get)
+    val gson = new GsonBuilder().create()
+    gson.fromJson(resp.toString, classOf[Statement])
   }
 }
