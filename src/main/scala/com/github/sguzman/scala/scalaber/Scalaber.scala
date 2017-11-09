@@ -60,13 +60,10 @@ object Scalaber {
     args.length == 1
   }
 
-  def checkCookie(str: String): Boolean = {
+  def checkCookie(cookie: String): Boolean = {
     try {
       val checkCookieURL = "https://partners.uber.com/p3/platform_chrome_nav_data"
-
-      val resp = Unirest.get(checkCookieURL)
-        .header("Cookie", str)
-        .asJson
+      val resp = this.get(checkCookieURL, cookie)
 
       val betterBe2 =
         resp
@@ -91,9 +88,7 @@ object Scalaber {
   def getStatementList(cookie: String): IndexedSeq[String] = {
     val getStatementListURL = "https://partners.uber.com/p3/money/statements/all_data"
 
-    val resp = Unirest.get(getStatementListURL)
-      .header("Cookie", cookie)
-      .asJson
+    val resp = this.get(getStatementListURL, cookie)
 
     val array = resp.getBody.getArray
     (0 until array.length).map(array.getJSONObject).map(_.getString("uuid"))
