@@ -81,7 +81,8 @@ object Scalaber {
       System.exit(5)
     } else {
       Logger.info("Successfully retrieved trips")
-      Logger.debug(trips.mkString("[", ", ", "]"))
+      val gson = new GsonBuilder().create()
+      println(trips.map(gson.toJson).mkString("{", ", ", "}"))
     }
   }
 
