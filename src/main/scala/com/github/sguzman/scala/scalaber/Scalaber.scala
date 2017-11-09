@@ -1,5 +1,7 @@
 package com.github.sguzman.scala.scalaber
 
+import com.github.sguzman.scala.scalaber.jsontypecheck.StatementListObject
+import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.{HttpResponse, JsonNode, Unirest}
 import org.pmw.tinylog.Logger
 
@@ -83,13 +85,14 @@ object Scalaber {
     }
   }
 
-  def getStatementList(cookie: String): IndexedSeq[String] = {
+  def getStatementList(cookie: String): IndexedSeq[StatementListObject] = {
     val getStatementListURL = "https://partners.uber.com/p3/money/statements/all_data"
-
     val resp = this.get(getStatementListURL, cookie)
 
+    val gson = new GsonBuilder().create()
+
     val array = resp.getBody.getArray
-    (0 until array.length).map(array.getJSONObject).map(_.getString("uuid"))
+    (0 until array.length).map(array.getJSONObject).map(_.toString).map(gson.fromJson(_, classOf[StatementListObject]))
   }
 
   def getTrips(cookie: String, uuid: String): IndexedSeq[AnyRef] = {
