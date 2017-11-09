@@ -76,9 +76,7 @@ object Scalaber {
           .getJSONArray("urls")
           .length
 
-      val status = resp.getStatus == 200 && resp.getStatusText == "OK" && betterBe2 == 2
-
-      status
+      resp.getStatus == 200 && resp.getStatusText == "OK" && betterBe2 == 2
     } catch {
       case _: Throwable =>
         false
