@@ -1,6 +1,6 @@
 package com.github.sguzman.scala.scalaber
 
-import com.mashape.unirest.http.Unirest
+import com.mashape.unirest.http.{HttpResponse, JsonNode, Unirest}
 import org.pmw.tinylog.Logger
 
 object Scalaber {
@@ -44,6 +44,12 @@ object Scalaber {
     } else {
       Logger.info("Statement list returned")
     }
+  }
+
+  def get(url: String, cookie: String): HttpResponse[JsonNode] = {
+    Unirest.get(url)
+      .header("Cookie", cookie)
+      .asJson
   }
 
   def checkArgsMessage: String = {
