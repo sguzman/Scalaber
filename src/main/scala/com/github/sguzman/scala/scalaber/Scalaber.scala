@@ -4,6 +4,7 @@ import java.util.UUID
 
 import com.github.sguzman.scala.scalaber.jsontypecheck.StatementListObject
 import com.github.sguzman.scala.scalaber.jsontypecheck.statement.Statement
+import com.github.sguzman.scala.scalaber.jsontypecheck.trip.Trip
 import com.google.gson.GsonBuilder
 import com.mashape.unirest.http.{HttpResponse, JsonNode, Unirest}
 import org.pmw.tinylog.Logger
@@ -23,7 +24,7 @@ object Scalaber {
     }
 
     val cookie = args.head
-    Logger.debug("About to check cookie...")
+    Logger.info("About to check cookie...")
 
     if (this.checkCookie(cookie)) {
       Logger.debug("All is good - Moving to next step")
@@ -32,7 +33,7 @@ object Scalaber {
       System.exit(2)
     }
 
-    Logger.debug("Retrieving statement list...")
+    Logger.info("Retrieving statement list...")
     val list = this.getStatementList(cookie)
     if (list.isEmpty) {
       Logger.error("Something went wrong - Failing gracefully")
@@ -44,7 +45,7 @@ object Scalaber {
 
     val getStmt = this.getStatementObject(cookie, _: UUID)
 
-    Logger.debug("Retrieving statement objects")
+    Logger.info("Retrieving statement objects")
     val statements = list.map(_.uuid).par.map(getStmt)
     if (statements.isEmpty) {
       Logger.error("Failed to retrieve list - Quitting...")
@@ -52,6 +53,24 @@ object Scalaber {
     } else {
       Logger.info("Statement list returned")
       Logger.debug(statements.mkString("[", ", ", "]"))
+    }
+
+    val getTrip = this.getTrip(cookie, _: UUID)
+
+    Logger.info("Retrieving trips")
+    val trips = statements
+      .map(_.body.driver.trip_earnings.trips.keySet)
+      .flatMap(_.toArray)
+      .map(_.asInstanceOf[UUID])
+      .par
+      .map(getTrip)
+
+    if (trips.isEmpty) {
+      Logger.error("Failed to retrieve trips")
+      System.exit(5)
+    } else {
+      Logger.info("Successfully retrieved trips")
+      Logger.debug(trips.mkString("[", ", ", "]"))
     }
   }
 
@@ -108,5 +127,13 @@ object Scalaber {
 
     val gson = new GsonBuilder().create()
     gson.fromJson(resp.toString, classOf[Statement])
+  }
+
+  def getTrip(cookie: String, uuid: UUID): Trip = {
+    val getTripURL = s"https://partners.uber.com/p3/money/trips/trip_data/${uuid.toString}"
+    val resp = this.get(getTripURL, cookie).getBody.getObject
+
+    val gson = new GsonBuilder().create()
+    gson.fromJson(resp.toString, classOf[Trip])
   }
 }
